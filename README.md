@@ -71,7 +71,7 @@ GEMINI_API_KEY=your_gemini_api_key_here
 The `run_flow.py` script automatically loads environment variables from the `.env` file when running flows.
 
 ### Customizing
-
+- When creating a flow, ensure we follow best practices defined under `crewai_practices` folder
 - Each flow has its own agents and tasks defined in `src/flows/<flow_name>/crews/<crew_name>/config/`
 - Modify `agents.yaml` to define your agents for each crew
 - Modify `tasks.yaml` to define your tasks for each crew
