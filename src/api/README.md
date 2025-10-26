@@ -10,11 +10,13 @@ The API is structured to keep flows decoupled from FastAPI:
 src/api/
 ├── __init__.py              # API module initialization
 ├── app.py                   # FastAPI app setup and configuration
+├── common.py                # Common models (ExecutionResponse, ExecutionStatusResponse)
 ├── execution_store.py       # Execution tracking and storage
+├── executions_router.py     # Root-level execution management endpoints
 └── {flow_name}/             # Flow-specific API integration
     ├── __init__.py          # Exports router
-    ├── models.py            # Request/Response models
-    └── router.py            # API endpoints
+    ├── models.py            # Flow-specific Request/Result models
+    └── router.py            # Flow-specific API endpoints
 ```
 
 ### Design Principles
@@ -100,14 +102,17 @@ Response (completed):
 ### 3. List All Executions
 
 ```bash
-# Get all executions
-curl "http://127.0.0.1:8000/api/v1/poem-flow/executions"
+# Get all executions across all flows
+curl "http://127.0.0.1:8000/api/v1/executions"
+
+# Filter by flow name
+curl "http://127.0.0.1:8000/api/v1/executions?flow_name=poem_flow"
 
 # Filter by status
-curl "http://127.0.0.1:8000/api/v1/poem-flow/executions?status=completed"
+curl "http://127.0.0.1:8000/api/v1/executions?status=completed"
 
-# Limit results
-curl "http://127.0.0.1:8000/api/v1/poem-flow/executions?limit=10"
+# Combine filters
+curl "http://127.0.0.1:8000/api/v1/executions?flow_name=poem_flow&status=completed&limit=10"
 ```
 
 ## Execution Flow
@@ -144,7 +149,7 @@ src/api/{flow_name}/
 
 ```python
 from pydantic import BaseModel, Field
-from ..execution_store import ExecutionStatus
+from ..common import ExecutionResponse, ExecutionStatusResponse
 
 class YourFlowRequest(BaseModel):
     """Request parameters for your flow."""
@@ -154,21 +159,16 @@ class YourFlowRequest(BaseModel):
 class YourFlowResult(BaseModel):
     """Result structure for your flow."""
     output_field: str
-    
-class ExecutionStatusResponse(BaseModel):
-    """Standard execution status response."""
-    execution_id: str
-    status: ExecutionStatus
-    result: Optional[YourFlowResult] = None
-    error: Optional[str] = None
 ```
 
 ### 3. Create Router (`router.py`)
 
 ```python
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from flows.{flow_name}.main import YourFlow
 from ..execution_store import execution_store, ExecutionStatus
+from ..common import ExecutionResponse, ExecutionStatusResponse
+from .models import YourFlowRequest, YourFlowResult
 
 router = APIRouter()
 
@@ -181,7 +181,7 @@ def execute_flow(execution_id: str, **params):
         flow.kickoff()
         
         # Extract and store results
-        result = {"output_field": flow.state.output}
+        result = YourFlowResult(output_field=flow.state.output).model_dump()
         execution_store.update_status(
             execution_id,
             ExecutionStatus.COMPLETED,
@@ -194,21 +194,40 @@ def execute_flow(execution_id: str, **params):
             error=str(e)
         )
 
-@router.post("/execute")
+@router.post("/execute", response_model=ExecutionResponse)
 async def trigger_flow(request: YourFlowRequest, background_tasks: BackgroundTasks):
     execution_id = execution_store.create_execution(
         flow_name="your_flow",
         inputs=request.model_dump()
     )
     background_tasks.add_task(execute_flow, execution_id, **request.model_dump())
-    return {"execution_id": execution_id, "status": "pending"}
+    return ExecutionResponse(
+        execution_id=execution_id,
+        status=ExecutionStatus.PENDING,
+        message=f"Flow execution initiated with ID: {execution_id}"
+    )
 
-@router.get("/execution/{execution_id}")
+@router.get("/execution/{execution_id}", response_model=ExecutionStatusResponse)
 async def get_status(execution_id: str):
     record = execution_store.get_execution(execution_id)
     if not record:
         raise HTTPException(status_code=404, detail="Not found")
-    return record
+    
+    # Convert result if needed
+    result = None
+    if record.result:
+        result = YourFlowResult(**record.result)
+    
+    return ExecutionStatusResponse(
+        execution_id=record.execution_id,
+        flow_name=record.flow_name,
+        status=record.status,
+        created_at=record.created_at,
+        started_at=record.started_at,
+        completed_at=record.completed_at,
+        result=result,
+        error=record.error
+    )
 ```
 
 ### 4. Register Router (`app.py`)

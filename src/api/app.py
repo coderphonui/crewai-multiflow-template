@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .poem_flow import router as poem_flow_router
+from .executions_router import router as executions_router
 
 
 def create_app() -> FastAPI:
@@ -28,6 +29,9 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+    
+    # Register root-level routers
+    app.include_router(executions_router, prefix="/api/v1", tags=["executions"])
     
     # Register flow routers
     app.include_router(poem_flow_router, prefix="/api/v1/poem-flow", tags=["poem-flow"])

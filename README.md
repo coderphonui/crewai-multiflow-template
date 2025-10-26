@@ -13,10 +13,12 @@ A multi-flow CrewAI project as a template.
 ├── src/
 │   ├── api/                 # FastAPI integration (flow-independent)
 │   │   ├── app.py           # FastAPI app setup
+│   │   ├── common.py        # Common models (ExecutionResponse, ExecutionStatusResponse)
 │   │   ├── execution_store.py  # Execution tracking
+│   │   ├── executions_router.py  # Root-level execution endpoints
 │   │   └── <flow_name>/     # Flow-specific API integration
-│   │       ├── models.py    # Request/Response models
-│   │       └── router.py    # API endpoints
+│   │       ├── models.py    # Flow-specific Request/Result models
+│   │       └── router.py    # Flow-specific API endpoints
 │   ├── flows/               # Individual flow implementations
 │   │   └── poem_flow/       # Example: Poem generation flow
 │   │       ├── main.py      # Flow definition
@@ -135,8 +137,14 @@ curl -X POST "http://127.0.0.1:8000/api/v1/poem-flow/execute" \
 # 2. Check execution status
 curl "http://127.0.0.1:8000/api/v1/poem-flow/execution/{execution_id}"
 
-# 3. List all executions
-curl "http://127.0.0.1:8000/api/v1/poem-flow/executions"
+# 3. List all executions (across all flows)
+curl "http://127.0.0.1:8000/api/v1/executions"
+
+# Filter by flow name
+curl "http://127.0.0.1:8000/api/v1/executions?flow_name=poem_flow"
+
+# Filter by status
+curl "http://127.0.0.1:8000/api/v1/executions?status=completed&limit=10"
 ```
 
 Or use the Python example client:
@@ -194,6 +202,7 @@ touch src/api/my_new_flow/router.py
 ```python
 from pydantic import BaseModel, Field
 from typing import Optional
+from ..common import ExecutionResponse, ExecutionStatusResponse
 
 class MyFlowRequest(BaseModel):
     """Request parameters for the flow."""
@@ -208,9 +217,10 @@ class MyFlowResult(BaseModel):
 ### 3. Create API Router (`router.py`)
 
 ```python
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from flows.my_new_flow.main import MyNewFlow
 from ..execution_store import execution_store, ExecutionStatus
+from ..common import ExecutionResponse, ExecutionStatusResponse
 from .models import MyFlowRequest, MyFlowResult
 
 router = APIRouter()
@@ -229,20 +239,39 @@ def execute_flow(execution_id: str, **params):
             execution_id, ExecutionStatus.FAILED, error=str(e)
         )
 
-@router.post("/execute")
+@router.post("/execute", response_model=ExecutionResponse)
 async def trigger_flow(request: MyFlowRequest, background_tasks: BackgroundTasks):
     execution_id = execution_store.create_execution(
         flow_name="my_new_flow", inputs=request.model_dump()
     )
     background_tasks.add_task(execute_flow, execution_id, **request.model_dump())
-    return {"execution_id": execution_id, "status": "pending"}
+    return ExecutionResponse(
+        execution_id=execution_id,
+        status=ExecutionStatus.PENDING,
+        message=f"Flow execution initiated with ID: {execution_id}"
+    )
 
-@router.get("/execution/{execution_id}")
+@router.get("/execution/{execution_id}", response_model=ExecutionStatusResponse)
 async def get_status(execution_id: str):
     record = execution_store.get_execution(execution_id)
     if not record:
         raise HTTPException(status_code=404, detail="Not found")
-    return record
+    
+    # Convert result if needed
+    result = None
+    if record.result:
+        result = MyFlowResult(**record.result)
+    
+    return ExecutionStatusResponse(
+        execution_id=record.execution_id,
+        flow_name=record.flow_name,
+        status=record.status,
+        created_at=record.created_at,
+        started_at=record.started_at,
+        completed_at=record.completed_at,
+        result=result,
+        error=record.error
+    )
 ```
 
 ### 4. Register Router in `src/api/app.py`

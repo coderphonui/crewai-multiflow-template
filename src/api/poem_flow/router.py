@@ -8,10 +8,9 @@ from fastapi import APIRouter, HTTPException, BackgroundTasks
 
 from .models import (
     PoemFlowRequest,
-    ExecutionResponse,
-    ExecutionStatusResponse,
     PoemResult
 )
+from ..common import ExecutionResponse, ExecutionStatusResponse
 from ..execution_store import (
     execution_store,
     ExecutionStatus
@@ -143,47 +142,3 @@ async def get_execution_status(execution_id: str):
         result=result,
         error=record.error
     )
-
-
-@router.get("/executions", response_model=list[ExecutionStatusResponse])
-async def list_executions(
-    status: Optional[ExecutionStatus] = None,
-    limit: int = 100
-):
-    """
-    List all poem flow executions with optional filtering.
-    
-    Args:
-        status: Filter by execution status
-        limit: Maximum number of records to return (default: 100)
-        
-    Returns:
-        List of execution records
-    """
-    records = execution_store.list_executions(
-        flow_name="poem_flow",
-        status=status,
-        limit=limit
-    )
-    
-    # Convert to response models
-    responses = []
-    for record in records:
-        result = None
-        if record.result:
-            result = PoemResult(**record.result)
-        
-        responses.append(
-            ExecutionStatusResponse(
-                execution_id=record.execution_id,
-                flow_name=record.flow_name,
-                status=record.status,
-                created_at=record.created_at,
-                started_at=record.started_at,
-                completed_at=record.completed_at,
-                result=result,
-                error=record.error
-            )
-        )
-    
-    return responses
