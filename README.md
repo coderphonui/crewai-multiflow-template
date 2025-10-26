@@ -1,4 +1,4 @@
-# CrewAI multi flow project
+# CrewAI multi flow project template
 
 A multi-flow CrewAI project as a template.
 
