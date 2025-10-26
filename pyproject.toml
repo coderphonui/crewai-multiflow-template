@@ -1,0 +1,26 @@
+[project]
+name = "interview_assistant"
+version = "0.1.0"
+description = "interview-assistant using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "crewai[tools]>=0.114.0,<1.0.0",
+    "python-dotenv>=1.0.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "requests>=2.31.0",  # For API client examples
+]
+
+[project.scripts]
+# Run flows using: python run_flow.py <flow_name> [command]
+# Example: python run_flow.py poem_flow kickoff
+poem_flow = "flows.poem_flow.main:kickoff"
+poem_flow_plot = "flows.poem_flow.main:plot"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "flow"
