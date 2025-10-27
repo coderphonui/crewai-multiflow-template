@@ -1,7 +1,7 @@
 [project]
-name = "interview_assistant"
+name = "crewmaster"
 version = "0.1.0"
-description = "interview-assistant using crewAI"
+description = "A multi CrewAI flows project template"
 authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = ">=3.10,<3.13"
 dependencies = [
@@ -24,3 +24,9 @@ build-backend = "hatchling.build"
 
 [tool.crewai]
 type = "flow"
+
+[tool.hatch.build.targets.wheel]
+# Explicitly tell hatch which directories/packages to include in the wheel.
+# We use the project "src" layout where the runtime packages live under `src/`.
+# Adjust these entries if you add other top-level packages later.
+packages = ["src/api", "src/flows", "src/shared"]
