@@ -1,5 +1,5 @@
 ---
-mode: agent
+mode: crewmaster
 description: Create a new flow based on the requirement
 ---
 # Create New CrewAI Flow
@@ -85,7 +85,7 @@ class <CrewName>Crew():
     def <agent_name>(self) -> Agent:
         return Agent(
             config=self.agents_config["<agent_name>"],
-            # tools=[...] if needed
+            # tools=[...] if needed, but we don't prefer to configure tools here, should be in config/agents.yaml
         )
 
     @task
@@ -118,6 +118,10 @@ Define agents with the following structure:
   backstory: >
     [Agent's backstory]
   llm: gemini/gemini-2.5-flash  # Or other configured LLM
+  tools:
+    - my_custom_search # References the Python function
+    - file_read_tool   # References the instantiated FileReadTool object
+    - scrape_website_tool # References the instantiated ScrapeWebsiteTool object  
 ```
 
 ### 5. Configure Tasks (`config/tasks.yaml`)

@@ -48,7 +48,7 @@ The role defines what the agent does and their area of expertise. When crafting 
 
 **Examples of effective roles:**
 
-```yaml  theme={null}
+```yaml
 role: "Senior UX Researcher specializing in user interview analysis"
 role: "Full-Stack Software Architect with expertise in distributed systems"
 role: "Corporate Communications Director specializing in crisis management"
@@ -64,7 +64,7 @@ The goal directs the agent's efforts and shapes their decision-making process. E
 
 **Examples of effective goals:**
 
-```yaml  theme={null}
+```yaml  
 goal: "Uncover actionable user insights by analyzing interview data and identifying recurring patterns, unmet needs, and improvement opportunities"
 goal: "Design robust, scalable system architectures that balance performance, maintainability, and cost-effectiveness"
 goal: "Craft clear, empathetic crisis communications that address stakeholder concerns while protecting organizational reputation"
@@ -80,7 +80,7 @@ The backstory gives depth to the agent, influencing how they approach problems a
 
 **Examples of effective backstories:**
 
-```yaml  theme={null}
+```yaml  
 backstory: "You have spent 15 years conducting and analyzing user research for top tech companies. You have a talent for reading between the lines and identifying patterns that others miss. You believe that good UX is invisible and that the best insights come from listening to what users don't say as much as what they do say."
 
 backstory: "With 20+ years of experience building distributed systems at scale, you've developed a pragmatic approach to software architecture. You've seen both successful and failed systems and have learned valuable lessons from each. You balance theoretical best practices with practical constraints and always consider the maintenance and operational aspects of your designs."
@@ -94,13 +94,13 @@ Agents perform significantly better when given specialized roles rather than gen
 
 **Generic (Less Effective):**
 
-```yaml  theme={null}
+```yaml  
 role: "Writer"
 ```
 
 **Specialized (More Effective):**
 
-```yaml  theme={null}
+```yaml  
 role: "Technical Blog Writer specializing in explaining complex AI concepts to non-technical audiences"
 ```
 
@@ -138,7 +138,7 @@ Let's look at some examples of agent definitions before and after applying these
 
 **Before:**
 
-```yaml  theme={null}
+```yaml  
 role: "Writer"
 goal: "Write good content"
 backstory: "You are a writer who creates content for websites."
@@ -146,7 +146,7 @@ backstory: "You are a writer who creates content for websites."
 
 **After:**
 
-```yaml  theme={null}
+```yaml  
 role: "B2B Technology Content Strategist"
 goal: "Create compelling, technically accurate content that explains complex topics in accessible language while driving reader engagement and supporting business objectives"
 backstory: "You have spent a decade creating content for leading technology companies, specializing in translating technical concepts for business audiences. You excel at research, interviewing subject matter experts, and structuring information for maximum clarity and impact. You believe that the best B2B content educates first and sells second, building trust through genuine expertise rather than marketing hype."
@@ -156,7 +156,7 @@ backstory: "You have spent a decade creating content for leading technology comp
 
 **Before:**
 
-```yaml  theme={null}
+```yaml  
 role: "Researcher"
 goal: "Find information"
 backstory: "You are good at finding information online."
@@ -164,7 +164,7 @@ backstory: "You are good at finding information online."
 
 **After:**
 
-```yaml  theme={null}
+```yaml  
 role: "Academic Research Specialist in Emerging Technologies"
 goal: "Discover and synthesize cutting-edge research, identifying key trends, methodologies, and findings while evaluating the quality and reliability of sources"
 backstory: "With a background in both computer science and library science, you've mastered the art of digital research. You've worked with research teams at prestigious universities and know how to navigate academic databases, evaluate research quality, and synthesize findings across disciplines. You're methodical in your approach, always cross-referencing information and tracing claims to primary sources before drawing conclusions."
@@ -204,13 +204,13 @@ Tasks perform best when focused on one clear objective:
 
 **Bad Example (Too Broad):**
 
-```yaml  theme={null}
+```yaml  
 task_description: "Research market trends, analyze the data, and create a visualization."
 ```
 
 **Good Example (Focused):**
 
-```yaml  theme={null}
+```yaml  
 # Task 1
 research_task:
   description: "Research the top 5 market trends in the AI industry for 2024."
@@ -233,7 +233,7 @@ Always clearly specify what inputs the task will use and what the output should 
 
 **Example:**
 
-```yaml  theme={null}
+```yaml  
 analysis_task:
   description: >
     Analyze the customer feedback data from the CSV file.
@@ -252,7 +252,7 @@ Explain why the task matters and how it fits into the larger workflow:
 
 **Example:**
 
-```yaml  theme={null}
+```yaml  
 competitor_analysis_task:
   description: >
     Analyze our three main competitors' pricing strategies.
@@ -267,7 +267,7 @@ For machine-readable outputs, specify the format clearly:
 
 **Example:**
 
-```yaml  theme={null}
+```yaml  
 data_extraction_task:
   description: "Extract key metrics from the quarterly report."
   expected_output: "JSON object with the following keys: revenue, growth_rate, customer_acquisition_cost, and retention_rate."
@@ -283,7 +283,7 @@ Based on lessons learned from real-world implementations, here are the most comm
 
 **Example of Poor Design:**
 
-```yaml  theme={null}
+```yaml  
 research_task:
   description: "Research AI trends."
   expected_output: "A report on AI trends."
@@ -291,7 +291,7 @@ research_task:
 
 **Improved Version:**
 
-```yaml  theme={null}
+```yaml  
 research_task:
   description: >
     Research the top emerging AI trends for 2024 with a focus on:
@@ -314,7 +314,7 @@ research_task:
 
 **Example of Poor Design:**
 
-```yaml  theme={null}
+```yaml  
 comprehensive_task:
   description: "Research market trends, analyze competitor strategies, create a marketing plan, and design a launch timeline."
 ```
@@ -322,7 +322,7 @@ comprehensive_task:
 **Improved Version:**
 Break this into sequential, focused tasks:
 
-```yaml  theme={null}
+```yaml  
 # Task 1: Research
 market_research_task:
   description: "Research current market trends in the SaaS project management space."
@@ -343,7 +343,7 @@ competitor_analysis_task:
 
 **Example of Poor Design:**
 
-```yaml  theme={null}
+```yaml  
 analysis_task:
   description: "Analyze customer feedback to find areas of improvement."
   expected_output: "A marketing plan for the next quarter."
@@ -351,7 +351,7 @@ analysis_task:
 
 **Improved Version:**
 
-```yaml  theme={null}
+```yaml  
 analysis_task:
   description: "Analyze customer feedback to identify the top 3 areas for product improvement."
   expected_output: "A report listing the 3 priority improvement areas with supporting customer quotes and data points."
@@ -379,7 +379,7 @@ analysis_task:
 
 **Example of Poor Design:**
 
-```yaml  theme={null}
+```yaml  
 agent:
   role: "Business Analyst"
   goal: "Analyze business data"
@@ -388,7 +388,7 @@ agent:
 
 **Improved Version:**
 
-```yaml  theme={null}
+```yaml  
 agent:
   role: "SaaS Metrics Specialist focusing on growth-stage startups"
   goal: "Identify actionable insights from business data that can directly impact customer retention and revenue growth"
@@ -407,7 +407,7 @@ When creating agents that will work together in a crew, consider:
 
 For example, a content creation crew might include:
 
-```yaml  theme={null}
+```yaml  
 # Research Agent
 role: "Research Specialist for technical topics"
 goal: "Gather comprehensive, accurate information from authoritative sources"
@@ -428,7 +428,7 @@ backstory: "With years of experience in publishing, you have a keen eye for deta
 
 Some agents can be designed specifically to leverage certain tools effectively:
 
-```yaml  theme={null}
+```yaml  
 role: "Data Analysis Specialist"
 goal: "Derive meaningful insights from complex datasets through statistical analysis"
 backstory: "With a background in data science, you excel at working with structured and unstructured data..."
@@ -439,7 +439,7 @@ tools: [PythonREPLTool, DataVisualizationTool, CSVAnalysisTool]
 
 Different LLMs have different strengths. Design your agents with these capabilities in mind:
 
-```yaml  theme={null}
+```yaml  
 # For complex reasoning tasks
 analyst:
   role: "Data Insights Analyst"
